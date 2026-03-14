@@ -2,8 +2,9 @@ export const sendResponse = (
   res,
   data,
   status = 200,
-  massege = "Done",
+  message = "Done",
   success = true,
 ) => {
-    return res.status(status).send({ data, massege, success });
+    return res.status(status).send({ data, message, success });
 };
+ 

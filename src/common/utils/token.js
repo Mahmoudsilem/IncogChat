@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import { SYS_MESSAGES } from "../common/index.js";
-import { InvalidTokenException } from "./error.utils.js";
+import { InvalidTokenException } from "./index.js";
+import { SYS_MESSAGES } from "../index.js";
 
 export function genToken(sub,expiresIn = 60 * 60, key = process.env.JWT_SECRET) {
   return jwt.sign({ sub }, key, { expiresIn });

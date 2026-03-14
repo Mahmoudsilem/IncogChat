@@ -23,3 +23,8 @@ export class InvalidTokenException extends Error {
     super(message, { cause: { status: 403 } });
   }
 }
+export class InvalidValidationException extends Error {
+  constructor(message) {
+    super(message, { cause: { status: 422 } });
+  }
+}

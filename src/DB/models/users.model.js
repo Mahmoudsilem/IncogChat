@@ -20,6 +20,10 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    rePassword: {
+      type: String,
+      required: true,
+    },
     phone: {
       type: String,
       required: true,
@@ -37,7 +41,6 @@ const userSchema = new Schema(
     conformEmail: Date,
     isDeleted: {
       type: Boolean,
-      default: false,
     },
   },
   {

@@ -1,5 +1,5 @@
 export const UserRoles = {
-  Admen: "0",
+  Admin: "0",
   User: "1"
 };
 export const UserGenders = {
