@@ -13,3 +13,13 @@ export function verifyToken(token, key = process.env.JWT_SECRET) {
     throw new InvalidTokenException(SYS_MESSAGES.token.invalid);
   }
 }
+
+export function genToken2(user){
+    const accessToken = genToken(user.id, "1y", process.env.JWT_SECRET);
+    const refreshToken = genToken(
+      user.id,
+      60 * 60,
+      process.env.JWT_SECRET_REFRESH,
+    );
+    return { accessToken, refreshToken };
+}

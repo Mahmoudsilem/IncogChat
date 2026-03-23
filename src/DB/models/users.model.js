@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { UserGenders, UserRoles } from "../../common/index.js";
+import { UserGenders, UserProviders, UserRoles } from "../../common/index.js";
 
 const userSchema = new Schema(
   {
@@ -18,15 +18,23 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function () {
+        return this.provider === UserProviders.system;
+      },
     },
     rePassword: {
       type: String,
-      required: true,
+    },
+    provider: {
+      type: String,
+      enum: Object.values(UserProviders),
+      default: UserProviders.system,
     },
     phone: {
       type: String,
-      required: true,
+      required:  function () {
+        return this.provider === UserProviders.system;
+      },
     },
     role: {
       type: String,

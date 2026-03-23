@@ -7,7 +7,7 @@ export const signupSchema = Joi.object({
   email: genralFieldValidation.email,
   phone: genralFieldValidation.phone,
   password: genralFieldValidation.password,
-  repassword: genralFieldValidation.repassword,
+  rePassword: genralFieldValidation.rePassword,
   role: genralFieldValidation.role,
   gender: genralFieldValidation.gender,
 });

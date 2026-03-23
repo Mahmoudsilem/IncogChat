@@ -7,6 +7,7 @@ import {
   genToken,
   encrypt,
   decrypt,
+  genToken2,
 } from "../common/utils/index.js";
 
 export async function signupAuthentication(req, res, next) {
@@ -25,17 +26,15 @@ export async function loginAuthentication(req, res, next) {
   const user = await userRepository.findOne({
     filter: { email: req.body.email },
   });
+
   const isPasswordValid = await comparePassword(
     req.body.password,
     user.password,
   );
-  const token = genToken(user.id, "1y", process.env.JWT_SECRET);
-  const refreshToken = genToken(
-    user.id,
-    60 * 60,
-    process.env.JWT_SECRET_REFRESH,
-  );
+  const { accessToken, refreshToken } = genToken2(user);
+
   user.phone = decrypt(user.phone);
+
   if (!user) {
     throw new NotFoundException(SYS_MESSAGES.user.notFound);
   }
@@ -44,7 +43,7 @@ export async function loginAuthentication(req, res, next) {
   }
   user.password = undefined;
   req.user = user;
-  req.token = token;
+  req.accessToken = accessToken;
   req.refreshToken = refreshToken;
   next();
 }

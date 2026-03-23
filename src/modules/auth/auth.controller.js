@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { sendResponse, SYS_MESSAGES } from "../../common/index.js";
-import { login, signup } from "./auth.service.js";
+import { genToken2, sendResponse, SYS_MESSAGES } from "../../common/index.js";
+import { login, signup, signupWithGmail } from "./auth.service.js";
 import {
   loginAuthentication,
   signupAuthentication,
@@ -17,10 +17,16 @@ router.post("/login", validateLogin, loginAuthentication, (req, res) => {
   const user = login(req.user);
   const data = {
     user,
-    token: req.token,
+    accessToken: req.accessToken,
     refreshToken: req.refreshToken,
   };
   sendResponse(res, data, 200, SYS_MESSAGES.user.loginSuccess);
+});
+router.post("/signup/gmail",  async (req, res) => {
+  const {user,mass} = await signupWithGmail(req.body.idToken);
+    const { accessToken, refreshToken } = genToken2(user);
+  
+  sendResponse(res, {user,accessToken,refreshToken}, 200, mass);
 });
 
 export default router;

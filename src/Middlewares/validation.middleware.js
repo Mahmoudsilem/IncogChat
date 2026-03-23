@@ -40,7 +40,6 @@ export const genralFieldValidation = {
     .messages({ "string.empty": "Phone number is required" })
     .required(),
   password: Joi.string()
-    .min(6)
     .pattern(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}/,
     )
@@ -49,7 +48,7 @@ export const genralFieldValidation = {
         "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
     })
     .required(),
-  repassword: Joi.string()
+  rePassword: Joi.string()
     .valid(Joi.ref("password"))
     .messages({ "any.only": "Passwords do not match" })
     .required(),

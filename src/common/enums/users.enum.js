@@ -7,3 +7,7 @@ export const UserGenders = {
   Male: "1",
   Female: "2"
 };
+export const UserProviders = {
+  system: "0",
+  Google: "1"
+};

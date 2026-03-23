@@ -2,6 +2,7 @@ function generateMessage(entity) {
   return {
     notFound: `${entity} Not Found`,
     alreadyExist: `${entity} Already Exist`,
+    systemLogedInNotGoogle: `System Loged In User Can't Login With Google`,
     invalidCredentials: `Invalid Email Or Password`,
     failToCreateUser: `Failed To Create ${entity}`,
     failToUpdateUser: `Failed To Update ${entity}`,
