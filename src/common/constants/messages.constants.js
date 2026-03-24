@@ -17,5 +17,9 @@ export const SYS_MESSAGES = {
   user: generateMessage("User"),
   token:{
     invalid:"Invalid token"
+  },
+  otp:{
+    otpUsed: `OTP Used Too Many Times, Please Request A New One`
+    ,invalid: `Invalid OTP`
   }
 };

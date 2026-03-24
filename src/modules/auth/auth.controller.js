@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { genToken2, sendResponse, SYS_MESSAGES } from "../../common/index.js";
-import { login, signup, signupWithGmail } from "./auth.service.js";
+import { login, signup, signupWithGmail, verifyAccount } from "./auth.service.js";
 import {
   loginAuthentication,
   signupAuthentication,
@@ -12,6 +12,12 @@ const router = Router();
 router.post("/signup", validateSignup, signupAuthentication, async (req, res) => {
   const user = await signup(req.body);
   sendResponse(res, user, 201, SYS_MESSAGES.user.created);
+});
+router.post("/verify-account", async (req, res) => {
+  const { email, otp } = req.body;
+  const { createdUser, varified, used} = await verifyAccount(email, otp);
+  return sendResponse(res, {createdUser}, 200, "Account Verified Successfully");
+
 });
 router.post("/login", validateLogin, loginAuthentication, (req, res) => {
   const user = login(req.user);

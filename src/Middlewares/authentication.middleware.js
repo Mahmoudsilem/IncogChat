@@ -8,6 +8,7 @@ import {
   encrypt,
   decrypt,
   genToken2,
+  UnauthorizedException,
 } from "../common/utils/index.js";
 
 export async function signupAuthentication(req, res, next) {
@@ -26,22 +27,22 @@ export async function loginAuthentication(req, res, next) {
   const user = await userRepository.findOne({
     filter: { email: req.body.email },
   });
-
   const isPasswordValid = await comparePassword(
-    req.body.password,
-    user.password,
+    req.body?.password,
+    user?.password || "12345674@_aA",
   );
   const { accessToken, refreshToken } = genToken2(user);
 
-  user.phone = decrypt(user.phone);
+  const decryptedPhone = decrypt(user?.phone || "U2FsdGVkX18ea358eCuTMeeOGHXDtDAOigAL1ZQkI51");
 
   if (!user) {
-    throw new NotFoundException(SYS_MESSAGES.user.notFound);
+    throw new UnauthorizedException(SYS_MESSAGES.user.invalidCredentials);
   }
   if (!isPasswordValid) {
-    throw new UnauthorizedException(SYS_MESSAGES.auth.invalidCredentials);
+    throw new UnauthorizedException(SYS_MESSAGES.user.invalidCredentials);
   }
   user.password = undefined;
+  user.phone = decryptedPhone;
   req.user = user;
   req.accessToken = accessToken;
   req.refreshToken = refreshToken;

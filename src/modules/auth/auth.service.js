@@ -1,19 +1,46 @@
 import { OAuth2Client } from "google-auth-library";
 import { userRepository } from "../../DB/db.repository.js";
 import {
+  sendEmail,
   SYS_MESSAGES,
   UnauthorizedException,
   UserProviders,
 } from "../../common/index.js";
+import redisRepository from "../../DB/redis.repository.js";
 
 export async function signup(userData) {
   const { firstName, lastName, email, password, phone, role, gender } =
     userData;
-  const user = await userRepository.createOne({
+    const user = { firstName, lastName, email, password, phone, role, gender };
+
+  // user.password = undefined;
+  redisRepository.set(email,user,{EX:60*60*24});
+   const otp = await redisRepository.genAccVarficationOTP(email,60*60);
+  sendEmail({
+    to: email,
+    subject:"Welcome to IncogChat",
+    html:`<h1>Welcome to IncogChat</h1><p>Thank you for signing up!</p>
+    <p>Your OTP for account verification is: <b>${otp}</b></p>
+    <p>This OTP is valid for 1 hour.</p>`, 
+  })
+  return user;
+}
+export async function verifyAccount(email, otp) {
+  const { used, varified } = await redisRepository.verifyAccVarficationOTP(email, otp);
+  console.log({used, varified});
+  
+  if (used) {
+    throw new UnauthorizedException(SYS_MESSAGES.otp.otpUsed);
+  }
+  if (!varified) {
+    throw new UnauthorizedException(SYS_MESSAGES.otp.invalid);
+  }
+  const user = await redisRepository.get(email);
+  const { firstName, lastName, password, phone, role, gender } = user;
+  const createdUser = await userRepository.createOne({
     data: { firstName, lastName, email, password, phone, role, gender },
   });
-  user.password = undefined;
-  return user;
+  return {createdUser, varified: true, used};
 }
 export function login(user) {
   return user;
