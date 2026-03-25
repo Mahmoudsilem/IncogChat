@@ -5,30 +5,35 @@ import {
   SYS_MESSAGES,
   UnauthorizedException,
   UserProviders,
+  verifyToken,
 } from "../../common/index.js";
 import redisRepository from "../../DB/redis.repository.js";
+import { JWT_SECRET_ACCESS, JWT_SECRET_REFRESH } from "../../config/env.config.js";
 
 export async function signup(userData) {
   const { firstName, lastName, email, password, phone, role, gender } =
     userData;
-    const user = { firstName, lastName, email, password, phone, role, gender };
+  const user = { firstName, lastName, email, password, phone, role, gender };
 
   // user.password = undefined;
-  redisRepository.set(email,user,{EX:60*60*24});
-   const otp = await redisRepository.genAccVarficationOTP(email,60*60);
+  redisRepository.set(email, user, { EX: 60 * 60 * 24 });
+  const otp = await redisRepository.genAccVarficationOTP(email, 60 * 60);
   sendEmail({
     to: email,
-    subject:"Welcome to IncogChat",
-    html:`<h1>Welcome to IncogChat</h1><p>Thank you for signing up!</p>
+    subject: "Welcome to IncogChat",
+    html: `<h1>Welcome to IncogChat</h1><p>Thank you for signing up!</p>
     <p>Your OTP for account verification is: <b>${otp}</b></p>
-    <p>This OTP is valid for 1 hour.</p>`, 
-  })
+    <p>This OTP is valid for 1 hour.</p>`,
+  });
   return user;
 }
 export async function verifyAccount(email, otp) {
-  const { used, varified } = await redisRepository.verifyAccVarficationOTP(email, otp);
-  console.log({used, varified});
-  
+  const { used, varified } = await redisRepository.verifyAccVarficationOTP(
+    email,
+    otp,
+  );
+  console.log({ used, varified });
+
   if (used) {
     throw new UnauthorizedException(SYS_MESSAGES.otp.otpUsed);
   }
@@ -40,7 +45,7 @@ export async function verifyAccount(email, otp) {
   const createdUser = await userRepository.createOne({
     data: { firstName, lastName, email, password, phone, role, gender },
   });
-  return {createdUser, varified: true, used};
+  return { createdUser, varified: true, used };
 }
 export function login(user) {
   return user;
@@ -60,7 +65,7 @@ export async function signupWithGmail(idToken) {
   const { email, given_name, family_name } = payload;
   const user = await userRepository.findOne({ filter: { email } });
   if (user && user.provider == UserProviders.Google) {
-    //login user    
+    //login user
     await loginWithGmail(user);
     return { user, mass: SYS_MESSAGES.user.loginSuccess };
   }
@@ -80,4 +85,20 @@ export async function signupWithGmail(idToken) {
 }
 async function loginWithGmail(user) {
   return await userRepository.findOne({ filter: { email: user.email } });
+}
+export async function logout(refreshToken, accessToken) {
+  const refreshTokenPayload = await verifyToken(refreshToken, JWT_SECRET_REFRESH);
+  const accessTokenPayload = await verifyToken(accessToken, JWT_SECRET_ACCESS);
+  // blacklist the access token
+  const now = Math.floor(Date.now() / 1000); // current time in seconds
+  const accessTokenTtl = +accessTokenPayload.exp - now;
+  const refreshTokenTtl = +refreshTokenPayload.exp - now;
+  console.log({now, accessTokenTtl, refreshTokenTtl,accessTokenPayload});
+  
+  await redisRepository.set(`bl_accToken:${accessTokenPayload.jti}`, `${accessTokenPayload.jti}`, {
+    EX: accessTokenTtl,
+  });
+  await redisRepository.set(`bl_refToken:${refreshTokenPayload.jti}`, `${refreshTokenPayload.jti}`, {
+    EX: refreshTokenTtl,
+  });
 }

@@ -1,5 +1,6 @@
 function generateMessage(entity) {
   return {
+    found: `${entity} Found`,
     notFound: `${entity} Not Found`,
     alreadyExist: `${entity} Already Exist`,
     systemLogedInNotGoogle: `System Loged In User Can't Login With Google`,
@@ -11,12 +12,14 @@ function generateMessage(entity) {
     loginSuccess: `Login Successfull`,
     userUpdated: `${entity} Updated Successfully`,
     userDeleted: `${entity} Deleted Successfully`,
+    logoutSuccess:`Logout Successfull`
   };
 }
 export const SYS_MESSAGES = {
   user: generateMessage("User"),
   token:{
-    invalid:"Invalid token"
+    invalid:"Invalid token",
+    revoked:"Token Revoked"
   },
   otp:{
     otpUsed: `OTP Used Too Many Times, Please Request A New One`

@@ -31,7 +31,7 @@ export async function loginAuthentication(req, res, next) {
     req.body?.password,
     user?.password || "12345674@_aA",
   );
-  const { accessToken, refreshToken } = genToken2(user);
+  const { accessToken, refreshToken } = await genToken2(user);
 
   const decryptedPhone = decrypt(user?.phone || "U2FsdGVkX18ea358eCuTMeeOGHXDtDAOigAL1ZQkI51");
 

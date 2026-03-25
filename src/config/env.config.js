@@ -11,7 +11,7 @@
 export const URI = process.env.URI;
 export const SALT_ROUNDS = process.env.SALT_ROUNDS;
 export const ENCRPT_KEY = process.env.ENCRPT_KEY;
-export const JWT_SECRET = process.env.JWT_SECRET;
+export const JWT_SECRET_ACCESS = process.env.JWT_SECRET_ACCESS;
 export const JWT_SECRET_REFRESH = process.env.JWT_SECRET_REFRESH;
 export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 export const EMAIL_USER = process.env.EMAIL_USER;
