@@ -1,13 +1,3 @@
-// URI = "mongodb+srv://Mahmoud:20012001@cluster0.hzwqgob.mongodb.net/incog-chat"
-// SALT_ROUNDS = "12"
-// ENCRPT_KEY = "123"
-// JWT_SECRET = "123"
-// JWT_SECRET_REFRESH = "123"
-// GOOGLE_CLIENT_ID = "211011661595-72otbmgr4lngah68telq32krkoerbop3.apps.googleusercontent.com"
-// EMAIL_USER = "mamse08@gmail.com"
-// EMAIL_PASS = "usyh qvwv enel svyn"
-// REDIS_URL = "rediss://default:gQAAAAAAAUQNAAIncDI4ODU4MjQzYTI3ZjM0YjdiODMxMWUzY2NlMDA3M2YwN3AyODI5NTc@heroic-stingray-82957.upstash.io:6379"
-
 export const URI = process.env.URI;
 export const SALT_ROUNDS = process.env.SALT_ROUNDS;
 export const ENCRPT_KEY = process.env.ENCRPT_KEY;
