@@ -1,3 +1,4 @@
+
 function generateMessage(entity) {
   return {
     found: `${entity} Found`,
@@ -24,5 +25,10 @@ export const SYS_MESSAGES = {
   otp:{
     otpUsed: `OTP Used Too Many Times, Please Request A New One`
     ,invalid: `Invalid OTP`
+  },
+  file:{
+    fileNotFound:"File Not Found",
+    invalidFileType:"Invalid File Type",
+    invalidFileSize:"Invalid File size",
   }
 };

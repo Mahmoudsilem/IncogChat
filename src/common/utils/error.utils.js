@@ -28,3 +28,8 @@ export class InvalidValidationException extends Error {
     super(message, { cause: { status: 422 } });
   }
 }
+export class InvalidFileException extends Error {
+  constructor(message) {
+    super(message, { cause: { status: 400 } });
+  }
+}

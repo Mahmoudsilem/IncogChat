@@ -4,11 +4,12 @@ import { connection } from "./DB/index.js";
 import { connectRedis } from "./DB/index.js";
 import { authController, userController } from "./modules/index.js";
 import cors from "cors";
-
+import { resolve } from "path";
 const app = express();
 const port = 3000;
 
 app.use(cors("*"));
+app.use("/uploads", express.static(resolve("./uploads/")));
 app.use(express.json());
 app.use("/auth", authController);
 app.use("/users", userController);

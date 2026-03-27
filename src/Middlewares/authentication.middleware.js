@@ -1,4 +1,4 @@
-import { SYS_MESSAGES, UserRoles } from "../common/index.js";
+import { SYS_MESSAGES, UserRoles, verifyToken } from "../common/index.js";
 import { userRepository } from "../DB/db.repository.js";
 import {
   comparePassword,
@@ -9,7 +9,13 @@ import {
   decrypt,
   genToken2,
   UnauthorizedException,
+  NotFoundException,
 } from "../common/utils/index.js";
+import {
+  ENCRPT_KEY,
+  JWT_SECRET_ACCESS,
+  JWT_SECRET_REFRESH,
+} from "../config/env.config.js";
 
 export async function signupAuthentication(req, res, next) {
   const user = await userRepository.findOne({
@@ -33,7 +39,9 @@ export async function loginAuthentication(req, res, next) {
   );
   const { accessToken, refreshToken } = await genToken2(user);
 
-  const decryptedPhone = decrypt(user?.phone || "U2FsdGVkX18ea358eCuTMeeOGHXDtDAOigAL1ZQkI51");
+  const decryptedPhone = decrypt(
+    user?.phone || "U2FsdGVkX18ea358eCuTMeeOGHXDtDAOigAL1ZQkI51",
+  );
 
   if (!user) {
     throw new UnauthorizedException(SYS_MESSAGES.user.invalidCredentials);
@@ -46,5 +54,27 @@ export async function loginAuthentication(req, res, next) {
   req.user = user;
   req.accessToken = accessToken;
   req.refreshToken = refreshToken;
+  next();
+}
+export async function userAuthentication(req, res, next) {
+  const accessTokenPaylod = await verifyToken(
+    req.headers.accesstoken,
+    JWT_SECRET_ACCESS,
+  );
+  const refreshTokenPaylod = await verifyToken(
+    req.headers.refreshtoken,
+    JWT_SECRET_REFRESH,
+  );
+  const user = await userRepository.findOne({
+    filter: { _id: refreshTokenPaylod.sub },
+    select: "-provider -password -createdAt -updatedAt -__v",
+  });
+  if (!user) throw new NotFoundException(SYS_MESSAGES.user.notFound);
+
+  user.phone = decrypt(user?.phone, ENCRPT_KEY);
+  req.user = user;
+
+  req.accessTokenPaylod = accessTokenPaylod;
+  req.refreshTokenPaylod = refreshTokenPaylod;
   next();
 }

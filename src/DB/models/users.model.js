@@ -46,6 +46,13 @@ const userSchema = new Schema(
       enum: Object.values(UserGenders),
       default: UserGenders.NA,
     },
+    profilePic: {
+      type: String,
+    },
+    coverPics: {
+      type: [String],
+      // maxLength: 2,
+    },
     conformEmail: Date,
     isDeleted: {
       type: Boolean,
