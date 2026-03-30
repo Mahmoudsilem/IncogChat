@@ -32,7 +32,7 @@ const userSchema = new Schema(
     },
     phone: {
       type: String,
-      required:  function () {
+      required: function () {
         return this.provider === UserProviders.system;
       },
     },
@@ -46,12 +46,21 @@ const userSchema = new Schema(
       enum: Object.values(UserGenders),
       default: UserGenders.NA,
     },
+    // profilePic: {
+    //   type: String,
+    // },
+    // coverPics: {
+    //   type: [String],
+    //   // maxLength: 2,
+    // },
     profilePic: {
-      type: String,
+      type: { public_id: String, secure_url: String },
     },
     coverPics: {
-      type: [String],
-      // maxLength: 2,
+      type: [{ public_id: String, secure_url: String }],
+    },
+    gallary: {
+      type: [{ public_id: String, secure_url: String }],
     },
     conformEmail: Date,
     isDeleted: {

@@ -1,5 +1,8 @@
 import Joi from "joi";
-import { InvalidValidationException } from "../common/index.js";
+import {
+  fileValidationFields,
+  InvalidValidationException,
+} from "../common/index.js";
 import { loginSchema, signupSchema } from "../modules/index.js";
 
 export const validateSignup = (req, res, next) => {
@@ -13,6 +16,25 @@ export const validateSignup = (req, res, next) => {
 };
 export const validateLogin = (req, res, next) => {
   const { error } = loginSchema.validate(req.body, {
+    abortEarly: false,
+  });
+  if (error) {
+    throw new InvalidValidationException(error.details[0].message);
+  }
+  next();
+};
+
+export const validateCoverPics = (req, res, next) => {
+  const { error } = coverPicsSchema.files.validate(req.files, {
+    abortEarly: false,
+  });
+  if (error) {
+    throw new InvalidValidationException(error.details[0].message);
+  }
+  next();
+};
+export const validateProfilePic = (req, res, next) => {
+  const { error } = profilePicSchema.file.validate(req.file, {
     abortEarly: false,
   });
   if (error) {
@@ -60,3 +82,45 @@ export const genralFieldValidation = {
       "Gender must be either 0 (Not Specified), 1 (Male), or 2 (Female)",
   }),
 };
+export const genralFileValidation = {
+  fieldname: Joi.string().required(),
+  originalname: Joi.string().required(),
+  encoding: Joi.string().required(),
+  mimetype: Joi.string().required(),
+  finalPath: Joi.string(),
+  destination: Joi.string().required(),
+  filename: Joi.string().required(),
+  path: Joi.string().required(),
+  size: Joi.number().required(),
+};
+export const profilePicSchema = {
+  file: 
+    Joi.object().keys({
+      fieldname: genralFileValidation.fieldname,
+      originalname: genralFileValidation.originalname,
+      encoding: genralFileValidation.encoding,
+      mimetype: genralFileValidation.mimetype.valid(...fileValidationFields.image),
+      finalPath: genralFileValidation.finalPath,
+      destination: genralFileValidation.destination,
+      filename: genralFileValidation.filename,
+      path: genralFileValidation.path,
+      size: genralFileValidation.size,
+    }).required(),
+
+};
+export const coverPicsSchema = {
+  files: Joi.array().items(
+    Joi.object().keys({
+      fieldname: genralFileValidation.fieldname,
+      originalname: genralFileValidation.originalname,
+      encoding: genralFileValidation.encoding,
+      mimetype: genralFileValidation.mimetype.valid(...fileValidationFields.image),
+      finalPath: genralFileValidation.finalPath,
+      destination: genralFileValidation.destination,
+      filename: genralFileValidation.filename,
+      path: genralFileValidation.path,
+      size: genralFileValidation.size,
+    }),
+  ).min(1).max(2).required(),
+};
+ 
