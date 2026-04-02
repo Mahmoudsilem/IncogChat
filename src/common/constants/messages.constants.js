@@ -13,7 +13,8 @@ function generateMessage(entity) {
     loginSuccess: `Login Successfull`,
     userUpdated: `${entity} Updated Successfully`,
     userDeleted: `${entity} Deleted Successfully`,
-    logoutSuccess:`Logout Successfull`
+    logoutSuccess:`Logout Successfull`,
+    coverPicsUpdated:`Cover Pics Updated Successfully`
   };
 }
 export const SYS_MESSAGES = {

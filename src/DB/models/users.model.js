@@ -58,9 +58,11 @@ const userSchema = new Schema(
     },
     coverPics: {
       type: [{ public_id: String, secure_url: String }],
+      default: [],
     },
     gallary: {
       type: [{ public_id: String, secure_url: String }],
+      default: [],
     },
     conformEmail: Date,
     isDeleted: {

@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { getUser, updateCoverPics, updateProfilePic, updateProfilePicCloud } from "./user.service.js";
+import {
+  getUser,
+  updateCoverPics,
+  updateCoverPicsCloud,
+  updateProfilePic,
+  updateProfilePicCloud,
+} from "./user.service.js";
 import {
   cloudFileUpload,
   fileValidationFields,
@@ -8,7 +14,6 @@ import {
   SYS_MESSAGES,
 } from "../../common/index.js";
 import {
-  profilePicSchema,
   userAuthentication,
   validateCoverPics,
   validateProfilePic,
@@ -26,7 +31,8 @@ router.patch(
   localFileUpload({
     customPath: [`users`, `profile-pic`],
     validation: fileValidationFields.image,
-  }).single("profilePic"),validateProfilePic,
+  }).single("profilePic"),
+  validateProfilePic,
   async (req, res) => {
     const updatedUser = await updateProfilePic(req.user, req.file.finalPath);
     sendResponse(res, { file: req.file, user: updatedUser }, 200);
@@ -37,9 +43,13 @@ router.patch(
   userAuthentication,
   cloudFileUpload({
     validation: fileValidationFields.image,
-  }).single("profilePic"),validateProfilePic,
+  }).single("profilePic"),
+  validateProfilePic,
   async (req, res) => {
-    const {userBeforeUpadate, porfilePic} = await updateProfilePicCloud(req.user, req.file);
+    const { userBeforeUpadate, porfilePic } = await updateProfilePicCloud(
+      req.user,
+      req.file,
+    );
     sendResponse(res, { porfilePic, user: userBeforeUpadate }, 200);
   },
 );
@@ -54,6 +64,18 @@ router.patch(
   async (req, res) => {
     await updateCoverPics(req.user, req.files);
     sendResponse(res, { files: req.files }, 200);
+  },
+);
+router.patch(
+  "/cover-pics-cloud",
+  userAuthentication,
+  cloudFileUpload({
+    validation: fileValidationFields.image,
+  }).array("coverPics", 2),
+  validateCoverPics,
+  async (req, res) => {
+    const { coverPics } = await updateCoverPicsCloud(req.user, req.files);
+    sendResponse(res, { coverPics }, 200, SYS_MESSAGES.user.coverPicsUpdated);
   },
 );
 export default router;
