@@ -12,7 +12,7 @@ export function genToken(
 ) {
   const paylode = {
     sub,
-    // jti: randomByts(16),
+    jti: randomByts(16),
   };
   return jwt.sign(paylode, key, { expiresIn });
 }
@@ -39,22 +39,26 @@ export async function genToken2(user) {
 
 export async function verifyToken(token, key) {
   try {
-  const paylode = jwt.verify(token, key);
-
-
-    const blAccToken = await redisRepository.get(
-      `bl_accToken:${paylode.jti}`,
-    );
-    const blRefToken = await redisRepository.get(
-      `bl_refToken:${paylode.jti}`,
-    );
-    if (blAccToken || blRefToken){
+    const paylode = jwt.verify(token, key);
+    const blAccToken = await redisRepository.get(`bl_accToken:${paylode.jti}`);
+    const blRefToken = await redisRepository.get(`bl_refToken:${paylode.jti}`);
+    if (blAccToken || blRefToken) {
       throw new InvalidTokenException(SYS_MESSAGES.token.revoked);
-    } 
+    }
     return paylode;
-  } 
-  catch (error) {
+  } catch (error) {
     throw new InvalidTokenException(SYS_MESSAGES.token.invalid);
   }
 }
- 
+export async function varifyToken2(token, key) {
+  try {
+    const paylode = jwt.verify(token, key);
+    const blToken = await redisRepository.get(`bl_*${paylode.jti}`);
+    if (blToken) {
+      throw new InvalidTokenException(SYS_MESSAGES.token.revoked);
+    }
+    return paylode;
+  } catch (error) {
+    throw new InvalidTokenException(SYS_MESSAGES.token.invalid);
+  }
+}

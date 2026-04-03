@@ -1,6 +1,9 @@
 import { OAuth2Client } from "google-auth-library";
 import { userRepository } from "../../DB/db.repository.js";
 import {
+  genToken,
+  genUUID,
+  hashPassword,
   sendEmail,
   SYS_MESSAGES,
   UnauthorizedException,
@@ -8,7 +11,11 @@ import {
   verifyToken,
 } from "../../common/index.js";
 import redisRepository from "../../DB/redis.repository.js";
-import { JWT_SECRET_ACCESS, JWT_SECRET_REFRESH } from "../../config/env.config.js";
+import {
+  JWT_SECRET_ACCESS,
+  JWT_SECRET_REFRESH,
+} from "../../config/env.config.js";
+import { restPaswordPage } from "../../common/frontEnd/html.frontend.js";
 
 export async function signup(userData) {
   const { firstName, lastName, email, password, phone, role, gender } =
@@ -86,17 +93,60 @@ async function loginWithGmail(user) {
   return await userRepository.findOne({ filter: { email: user.email } });
 }
 export async function logout(refreshToken, accessToken) {
-  const refreshTokenPayload = await verifyToken(refreshToken, JWT_SECRET_REFRESH);
+  const refreshTokenPayload = await verifyToken(
+    refreshToken,
+    JWT_SECRET_REFRESH,
+  );
   const accessTokenPayload = await verifyToken(accessToken, JWT_SECRET_ACCESS);
   // blacklist the access token
   const now = Math.floor(Date.now() / 1000); // current time in seconds
   const accessTokenTtl = +accessTokenPayload.exp - now;
   const refreshTokenTtl = +refreshTokenPayload.exp - now;
-  
-  await redisRepository.set(`bl_accToken:${accessTokenPayload.jti}`, `${accessTokenPayload.jti}`, {
-    EX: accessTokenTtl,
+
+  await redisRepository.set(
+    `bl_accToken:${accessTokenPayload.jti}`,
+    `${accessTokenPayload.jti}`,
+    {
+      EX: accessTokenTtl,
+    },
+  );
+  await redisRepository.set(
+    `bl_refToken:${refreshTokenPayload.jti}`,
+    `${refreshTokenPayload.jti}`,
+    {
+      EX: refreshTokenTtl,
+    },
+  );
+}
+
+export async function sendResetPasswordLink(email) {
+  const user = await userRepository.findOne({ filter: { email } });
+  if (!user) {
+    throw new UnauthorizedException("User not found");
+  }
+  const password = genUUID();
+  await redisRepository.set(`resetPass:${email}`, password, { EX: 60 * 15 });
+  sendEmail({
+    to: email,
+    subject: "Reset Password",
+    html: `<h1>Reset Password</h1>
+    <p>Your temporary password is: <b>${password}</b></p>
+    <p>Use this password to reset your password.</p>
+    <p>This password is valid for 15 minutes.</p>`,
   });
-  await redisRepository.set(`bl_refToken:${refreshTokenPayload.jti}`, `${refreshTokenPayload.jti}`, {
-    EX: refreshTokenTtl,
-  });
+}
+
+export async function resetPassword({ email, password, newPassword }) {
+  const tempPassword = await redisRepository.get(`resetPass:${email}`);
+  if (tempPassword !== password) {
+    throw new UnauthorizedException("Invalid password reset password");
+  }
+  await redisRepository.del(`resetPass:${email}`);
+  const user = await userRepository.findOne({ filter: { email } });
+  if (!user) {
+    throw new UnauthorizedException("User not found");
+  }
+  user.password = await hashPassword(newPassword);
+  await user.save();
+  return user;
 }

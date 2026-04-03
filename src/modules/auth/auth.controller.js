@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { genToken2, sendResponse, SYS_MESSAGES } from "../../common/index.js";
-import { login, logout, signup, signupWithGmail, verifyAccount } from "./auth.service.js";
+import { login, logout, resetPassword, sendResetPasswordLink, signup, signupWithGmail, verifyAccount } from "./auth.service.js";
 import {
   loginAuthentication,
   signupAuthentication,
@@ -40,5 +40,17 @@ router.post("/logout", async (req, res) => {
   await logout(req.headers.refreshtoken, req.headers.accesstoken);
   sendResponse(res, {}, 200, SYS_MESSAGES.user.logoutSuccess);
 });
+
+router.post("/send-reset-password", async (req, res) => {
+  await sendResetPasswordLink(req.body.email);
+  sendResponse(res, {}, 200, "Reset password link sent to your email");
+});
+
+router.patch("/reset-password", async (req, res) => {
+  const { email, password, newPassword } = req.body;
+  const user = await resetPassword({ email, password, newPassword });
+  sendResponse(res, user, 200, SYS_MESSAGES.user.passwordReset);
+});
+
 
 export default router;
