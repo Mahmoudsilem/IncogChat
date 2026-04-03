@@ -13,6 +13,9 @@ class RedisRepository {
     const value = await this.redisClient.get(key);
     return JSON.parse(value);
   }
+  async increment(key) {
+    await this.redisClient.incr(key);
+  }
   async del(key) {
     await this.redisClient.del(key);
   }

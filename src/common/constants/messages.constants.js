@@ -14,7 +14,8 @@ function generateMessage(entity) {
     userUpdated: `${entity} Updated Successfully`,
     userDeleted: `${entity} Deleted Successfully`,
     logoutSuccess:`Logout Successfull`,
-    coverPicsUpdated:`Cover Pics Updated Successfully`
+    coverPicsUpdated:`Cover Pics Updated Successfully`,
+    profilePicDeleted:`Profile Pic Deleted Successfully`
   };
 }
 export const SYS_MESSAGES = {

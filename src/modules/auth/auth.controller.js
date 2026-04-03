@@ -6,6 +6,7 @@ import {
   signupAuthentication,
 } from "../../Middlewares/authentication.middleware.js";
 import { validateLogin, validateSignup } from "../../Middlewares/validation.middleware.js";
+import { incrementUsersViews } from "../user/user.service.js";
 
 const router = Router();
 
@@ -19,13 +20,14 @@ router.post("/verify-account", async (req, res) => {
   return sendResponse(res, {createdUser}, 200, "Account Verified Successfully");
 
 });
-router.post("/login", validateLogin, loginAuthentication, (req, res) => {
+router.post("/login", validateLogin, loginAuthentication,async (req, res) => {
   const user = login(req.user);
   const data = {
     user,
     accessToken: req.accessToken,
     refreshToken: req.refreshToken,
   };
+  await incrementUsersViews();
   sendResponse(res, data, 200, SYS_MESSAGES.user.loginSuccess);
 });
 router.post("/signup/gmail",  async (req, res) => {

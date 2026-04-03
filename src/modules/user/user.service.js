@@ -1,3 +1,4 @@
+import e from "express";
 import {
   cloud,
   cloudinaryUpdate,
@@ -5,10 +6,16 @@ import {
 } from "../../common/utils/multer/cloudinary.js";
 import { APPLICATION_NAME } from "../../config/env.config.js";
 import { userRepository } from "../../DB/db.repository.js";
+import redisRepository from "../../DB/redis.repository.js";
+import { UnauthorizedException, UserRoles } from "../../common/index.js";
+
+
+// user services
+// get user
 export async function getUser(user) {
   return user;
 }
-
+// update profile pic deprecated
 export async function updateProfilePic(user, file) {
   const updatedUser = await userRepository.updateOne({
     filter: { _id: user._id },
@@ -16,6 +23,7 @@ export async function updateProfilePic(user, file) {
   });
   return { updatedUser };
 }
+// update profile pic cloud
 export async function updateProfilePicCloud(user, file) {
   const { public_id, secure_url } = await cloudinaryUpload({
     id: user._id,
@@ -40,7 +48,20 @@ export async function updateProfilePicCloud(user, file) {
   }
   return { userBeforeUpadate, porfilePic: secure_url };
 }
-
+// delete profile pic
+export async function deleteProfilePic(user) {
+  //delete from cloudinary
+  if (user.profilePic?.public_id) {
+    await cloud().api.delete_resources([user.profilePic.public_id]);
+  }
+  const updatedUser = await userRepository.findOneAndUpdate({
+    filter: { _id: user._id },
+    update: { $unset: { profilePic: 1 } },
+    options: { returnDocument: "after" },
+  });
+  return { updatedUser };
+}
+// update cover pics
 export async function updateCoverPics(user, files) {
   const coverPics = user.coverPics;
   console.log(files.map((file) => file.finalPath));
@@ -56,7 +77,7 @@ export async function updateCoverPics(user, files) {
   await user.save();
   return { userToUpdate };
 }
-
+// update cover pics cloud
 export async function updateCoverPicsCloud(user, files) {
   // Upload all new files to Cloudinary in parallel
   const uploadedPics = await Promise.all(
@@ -88,11 +109,11 @@ export async function updateCoverPicsCloud(user, files) {
   // Move overflowed old pics to gallery (Cloudinary folder + DB)
   if (picsToArchive.length > 0) {
     const archivedPics = await Promise.all(
-      picsToArchive.map(async (pic) => {        
+      picsToArchive.map(async (pic) => {
         const { public_id, secure_url } = await cloud().api.update(
           pic.public_id,
           { asset_folder: `${APPLICATION_NAME}/users/${user._id}/gallary` },
-        )
+        );
         return { public_id, secure_url };
       }),
     );
@@ -129,4 +150,17 @@ export async function updateCoverPicsCloud(user, files) {
   });
 
   return { userBeforeUpdate, coverPics: newCoverPics };
+}
+
+// increment users views this is used to track how many times users have logged in.
+export async function incrementUsersViews(){
+  await redisRepository.increment("usersViews");
+}
+
+// get users views,only admins can access.
+export function getUsersViews(user){
+  if(user.role !== UserRoles.Admin){
+    throw new UnauthorizedException("Only admins can access this resource");
+  }
+  return redisRepository.get("usersViews");
 }
