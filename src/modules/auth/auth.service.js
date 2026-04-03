@@ -32,7 +32,6 @@ export async function verifyAccount(email, otp) {
     email,
     otp,
   );
-  console.log({ used, varified });
 
   if (used) {
     throw new UnauthorizedException(SYS_MESSAGES.otp.otpUsed);
@@ -93,7 +92,6 @@ export async function logout(refreshToken, accessToken) {
   const now = Math.floor(Date.now() / 1000); // current time in seconds
   const accessTokenTtl = +accessTokenPayload.exp - now;
   const refreshTokenTtl = +refreshTokenPayload.exp - now;
-  console.log({now, accessTokenTtl, refreshTokenTtl,accessTokenPayload});
   
   await redisRepository.set(`bl_accToken:${accessTokenPayload.jti}`, `${accessTokenPayload.jti}`, {
     EX: accessTokenTtl,

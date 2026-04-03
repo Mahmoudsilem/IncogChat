@@ -1,4 +1,4 @@
-import { userSchema } from "./index.js";
+import { massageSchema, userSchema } from "./index.js";
 
 class DBRepository {
   constructor(nModel) {
@@ -12,13 +12,23 @@ class DBRepository {
   }
 
   async findOne({ filter = {}, select = "", options = {} }) {
-    const doc = this.nModel.findOne(filter, options).select(select);
+    const doc = this.nModel.findOne(filter,select, options).select(select);
     if (options.lean) {
       doc.lean();
     }
-    if (options.populate) {
-      doc.populate(options.populate);
+    // if (options.populate) {
+    //   doc.populate(options.populate);
+    // }
+    return await doc.exec();
+  }
+  async find({ filter = {}, select = "", options = {} }) {
+    const doc = this.nModel.find(filter,select, options).select(select);
+    if (options.lean) {
+      doc.lean();
     }
+    // if (options.populate) {
+    //   doc.populate(options.populate);
+    // }
     return await doc.exec();
   }
   async updateOne({
@@ -38,3 +48,4 @@ class DBRepository {
   
 }
 export const userRepository = new DBRepository(userSchema);
+export const massageRepository = new DBRepository(massageSchema);

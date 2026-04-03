@@ -19,6 +19,7 @@ function generateMessage(entity) {
 }
 export const SYS_MESSAGES = {
   user: generateMessage("User"),
+  massage: generateMessage("Massage"),
   token:{
     invalid:"Invalid token",
     revoked:"Token Revoked"
