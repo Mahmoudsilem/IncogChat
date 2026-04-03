@@ -8,9 +8,25 @@ import {
   userController,
 } from "./modules/index.js";
 import cors from "cors";
+import helmet from "helmet";
 import { resolve } from "path";
+import rateLimit from "express-rate-limit";
+
 const app = express();
 const port = 3000;
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max:3,
+  handler:function(req,res,next){
+    throw new Error(this.message,{cause:{status:this.statusCode}})
+  },
+  keyGenerator:function(req,res){
+    return `${req.ip}:${req.path}`;
+  }
+}) 
+
+app.use(limiter);
+app.use(helmet());
 
 app.use(cors("*"));
 app.use("/uploads", express.static(resolve("./uploads/")));
