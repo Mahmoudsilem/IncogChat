@@ -2,6 +2,7 @@ import { OAuth2Client } from "google-auth-library";
 import { userRepository } from "../../DB/db.repository.js";
 import {
   genToken,
+  genToken2,
   genUUID,
   hashPassword,
   sendEmail,
@@ -12,10 +13,10 @@ import {
 } from "../../common/index.js";
 import redisRepository from "../../DB/redis.repository.js";
 import {
+  ENCRPT_KEY,
   JWT_SECRET_ACCESS,
   JWT_SECRET_REFRESH,
 } from "../../config/env.config.js";
-import { restPaswordPage } from "../../common/frontEnd/html.frontend.js";
 
 export async function signup(userData) {
   const { firstName, lastName, email, password, phone, role, gender } =
@@ -118,7 +119,28 @@ export async function logout(refreshToken, accessToken) {
     },
   );
 }
-
+export async function activateTwoFactorLogin(user) {
+  // Implement your logic to activate two-factor authentication for the user
+  user.towFactorAuth = true;
+  await user.save();
+}
+export async function verifyTwoFactorLogin(email, otp) {
+  const user = await userRepository.findOne({ filter: { email } });
+  if (!user) {
+    throw new UnauthorizedException(SYS_MESSAGES.user.notFound);
+  }
+  // Implement your logic to verify the OTP sent to the user's email or phone
+  const userOtp = await redisRepository.get(`towFactorAuthOtp:${user._id}`);
+  if (userOtp != otp) {
+    throw new UnauthorizedException("Invalid OTP");
+  }
+  await redisRepository.del(`towFactorAuthOtp:${user._id}`);
+  const { accessToken, refreshToken } = await genToken2(user);
+  user.password = undefined;
+  user.phone = decrypt(user?.phone, ENCRPT_KEY);
+  // You can retrieve the OTP from Redis and compare it with the OTP provided by the user
+  return { user, accessToken, refreshToken }; // Return true if OTP is valid, otherwise return false
+}
 export async function sendResetPasswordLink(email) {
   const user = await userRepository.findOne({ filter: { email } });
   if (!user) {
@@ -148,5 +170,11 @@ export async function resetPassword({ email, password, newPassword }) {
   }
   user.password = await hashPassword(newPassword);
   await user.save();
+  return user;
+}
+export async function updatePassword(user, newPassword) {
+  user.password = await hashPassword(newPassword);
+  await user.save();
+  user.password = undefined;
   return user;
 }

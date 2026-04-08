@@ -15,7 +15,8 @@ function generateMessage(entity) {
     userDeleted: `${entity} Deleted Successfully`,
     logoutSuccess:`Logout Successfull`,
     coverPicsUpdated:`Cover Pics Updated Successfully`,
-    profilePicDeleted:`Profile Pic Deleted Successfully`
+    profilePicDeleted:`Profile Pic Deleted Successfully`,
+    accountLocked:`Account Locked Due To Too Many Failed Login Attempts, Please Try Again After 5 Minutes`
   };
 }
 export const SYS_MESSAGES = {

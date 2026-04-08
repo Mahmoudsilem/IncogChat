@@ -16,7 +16,7 @@ const app = express();
 const port = 3000;
 const limiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max:3,
+  max:7,
   handler:function(req,res,next){
     throw new Error(this.message,{cause:{status:this.statusCode}})
   },

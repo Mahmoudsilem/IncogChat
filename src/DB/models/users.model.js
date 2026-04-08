@@ -68,6 +68,10 @@ const userSchema = new Schema(
     isDeleted: {
       type: Boolean,
     },
+    towFactorAuth: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

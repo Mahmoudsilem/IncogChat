@@ -16,6 +16,9 @@ class RedisRepository {
   async increment(key) {
     await this.redisClient.incr(key);
   }
+  async expire(key, seconds) {
+    await this.redisClient.expire(key, seconds);
+  }
   async del(key) {
     await this.redisClient.del(key);
   }
