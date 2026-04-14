@@ -58,7 +58,6 @@ It enables users to communicate securely while maintaining anonymity.
 
 ### 👤 User Features
 
-* Soft delete for users
 * Profile & cover picture upload
 
 ---
@@ -86,7 +85,7 @@ src/
 ├── config/         # DB, Redis, Cloudinary configs
 ├── services/       # Business logic
 ├── routes/         # API routes
-└── app.js          # Entry point
+└── index.js          # Entry point
 ```
 
 ---
@@ -96,21 +95,24 @@ src/
 Create a `.env` file in the root directory:
 
 ```
-PORT=3000
-MONGO_URI=your_mongodb_uri
-REDIS_URL=your_redis_url
+APPLICATION_NAME = "IncogChat"
 
-JWT_SECRET=your_jwt_secret
+URI = your_mongodb_uri
+REDIS_URL = your_redis_url
 
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
+SALT_ROUNDS = 
+ENCRPT_KEY = 
+JWT_SECRET_ACCESS = your_jwt_secret
+JWT_SECRET_REFRESH = your_jwt_secret
 
-EMAIL_USER=your_email
-EMAIL_PASS=your_email_password
+CLOUDINARY_NAME = your_cloud_name
+CLOUDINARY_API_KEY = your_api_key
+CLOUDINARY_API_SECRET = your_api_secret
 
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_CLIENT_ID = your_google_client_id
+EMAIL_USER = your_email
+EMAIL_PASS = your_email_password
+
 ```
 
 ---
@@ -162,6 +164,7 @@ npm run start:dev
 
 ## 🧪 Future Improvements
 
+* Soft delete for users
 * Real-time chat using WebSockets (Socket.io)
 * End-to-end encryption for messages
 * Group anonymous chats
@@ -183,8 +186,3 @@ This project is licensed under the MIT License.
 
 ---
 
-If you want, I can:
-
-* tailor it specifically to your folder structure
-* add API request/response examples
-* or make it look more “GitHub attractive” with badges and screenshots 👍
