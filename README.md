@@ -1,7 +1,3 @@
-Here’s a clean, professional **README.md** you can use for your project 👇 (you can copy-paste and tweak names later):
-
----
-
 # 🕵️‍♂️ Anonymous Chat App (IncogChat)
 
 An **anonymous chat backend application** built with **Node.js, Express, and MongoDB (Mongoose)**.
